@@ -135,7 +135,7 @@ if st.checkbox('Raw data'):
 ######################################################
 y_label = ['new_cases', 'new_deaths', 'weekly_hosp_admissions', 'positive_rate']
 x = data['date']
-y_nc, y_nd, y_wh = data[y_label[0]], data[y_label[1]], data[y_abel[2]]
+y_nc, y_nd, y_wh = data[y_label[0]], data[y_label[1]], data[y_label[2]]
 
 ## check if weekly_hosp_admission data available
 y_wh_lst = y_wh.tolist() # convert df to list object
