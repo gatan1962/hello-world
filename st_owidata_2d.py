@@ -83,7 +83,7 @@ def plot_chart(x_lst, y_lst, country, y_label, ticks=None):
     return fig
     
 ######################################################
-######## download data from OWI web-site  ############
+######## download data from OWID web-site  ############
 ######################################################
 data_url = ('https://covid.ourworldindata.org/data/owid-covid-data.csv')
 
@@ -98,6 +98,7 @@ def load_data(country='Malaysia'):
        
     # convert date from string to datetime
     data['date'] = pd.to_datetime(data['date']).dt.date
+    
     # select country data of interest
     country_data = data[data['location'] == country]
     
@@ -110,11 +111,14 @@ def check_raw_data(input_data, header):
 # program initialization
 st.title('Covid-19 Trend Chart')
 st.text('Data source:- https://covid.ourworldindata.org/data/owid-covid-data.csv')
+
+# User input country name
 country_name = st.text_input('Enter country:')
+country_name = " ".join(country_name.split()) # keep single space between components of name
 st.write('Selected country is:', country_name)
 
 # Download covid data from owid url
-data, country_list = load_data(country_name) #('China')
+data, country_list = load_data(country_name) 
 
 if country_name not in country_list:
     st.warning('Oops...! Country not entered or not valid, please re-enter!')
@@ -129,9 +133,14 @@ if st.checkbox('Raw data'):
 ######################################################
 ######## 1. Define data of interest       ############
 ######################################################
-y_label = ['new_cases', 'new_deaths']
+y_label = ['new_cases', 'new_deaths', 'weekly_hosp_admissions', 'positive_rate']
 x = data['date']
-y_nc, y_nd = data[y_label[0]], data[y_label[1]]
+y_nc, y_nd, y_wh = data[y_label[0]], data[y_label[1]], data[y_abel[2]]
+
+## check if weekly_hosp_admission data available
+y_wh_lst = y_wh.tolist() # convert df to list object
+y_wh_data = [d for d in y_wh_lst if str(d).replace('.','',1).isdigit()] # keep if data available
+y_wh_data = len(y_wh_data) > 0 # bool:True if data exist.
 
 ##################################################################
 ######## 2. Generate chart with user select start date        ####
@@ -146,22 +155,35 @@ try:
     x1 = x_lst[date_index:]
     y1 = y_nc[date_index:]
     y2 = y_nd[date_index:]
+    #y3 = y_wh[date_index:]
     freq = int(len(x1)//30) + 1
-
-    fig, ax = plt.subplots(2, figsize=(8,6))
-    ax[0].scatter(x1, y1)
-    ax[1].scatter(x1, y2)   
     ticks, country = freq, country_name
 
+    ## Plot charts
+    fig, ax = plt.subplots(2, figsize=(8,6))
+    ax[0].scatter(x1, y1)
+    ax[1].scatter(x1, y2)  
+    #ax[2].scatter(x1, y3, marker='.', color='g')
+    
+    ## Standardized x-limit & x-ticks for all charts
+    days = timedelta(int(0.03 * len(x1)) + 1) # off-set days
+    ax[0].set_xlim(x1[0] - days, x1[-1] + days)
+    ax[1].set_xlim(x1[0] - days, x1[-1] + days)
+    ax[2].set_xlim(x1[0] - days, x1[-1] + days)
+
+    ## Plot 1st chart:
     ax[0].set_title(country)
     ax[0].set_xlabel('')
     ax[0].set_ylabel(y_label[0])
+    ax[0].yaxis.set_label_coords(-0.1, 0.5) # set y-label position
     ax[0].set_xticks(x1[::ticks])
-    ax[0].set_xticklabels([]) #x1[::ticks], rotation=90, fontsize=8)
+    ax[0].set_xticklabels([])
     ax[0].grid(linestyle='--')
     
+    ## Plot 2nd chart:
     ax[1].set_xlabel('Date')
     ax[1].set_ylabel(y_label[1])
+    ax[1].yaxis.set_label_coords(-0.1, 0.5)
     ax[1].set_xticks(x1[::ticks])
     ax[1].set_xticklabels(x1[::ticks], rotation=90, fontsize=8)    
     ax[1].grid(linestyle='--')
