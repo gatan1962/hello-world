@@ -159,8 +159,8 @@ try:
     freq = int(len(x1)//30) + 1
     ticks, country = freq, country_name
 
-    ## Plot charts
-    fig, ax = plt.subplots(2, figsize=(8,6))
+    ## Plot charts:
+    fig, ax = plt.subplots(2, 1, figsize=(8,6)) # 2 charts align in column
     ax[0].scatter(x1, y1)
     ax[1].scatter(x1, y2)  
     #ax[2].scatter(x1, y3, marker='.', color='g')
@@ -169,7 +169,7 @@ try:
     days = timedelta(int(0.03 * len(x1)) + 1) # off-set days
     ax[0].set_xlim(x1[0] - days, x1[-1] + days)
     ax[1].set_xlim(x1[0] - days, x1[-1] + days)
-    ax[2].set_xlim(x1[0] - days, x1[-1] + days)
+    #ax[2].set_xlim(x1[0] - days, x1[-1] + days)
 
     ## Plot 1st chart:
     ax[0].set_title(country)
