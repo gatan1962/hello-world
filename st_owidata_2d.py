@@ -145,9 +145,6 @@ try:
     
     fig.tight_layout()
     st.pyplot(fig)
-    
-    fig.tight_layout()
-    st.pyplot(fig)
 
 except:
     st.warning('Oops...! Please check if the country name is entered correctly.')
