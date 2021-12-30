@@ -5,71 +5,11 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import requests
 
 #ReaMe: To generate selected data to track,
 #       run this program. it will download source data from OWI site
 #       and write the selected data into a data consolidated file.
-
-
-class SnaptoCursor(object):
-    def __init__(self, ax, x, y):
-        self.ax = ax
-        self.ly = ax.axvline(color='k', alpha=0.2)  # the vert line
-        self.lx = ax.axhline(color='k', alpha=0.2)  # the horiz line
-        self.marker, = ax.plot([0],[0], marker="", color="crimson", zorder=3) 
-        self.x = x
-        self.y = y
-        self.txt = ax.text(0.7, 0.9, '')
-
-    def mouse_move(self, event):
-        if not event.inaxes: return
-        x, y = event.xdata, event.ydata
-        #indx = np.searchsorted(self.x, [x])[0]
-        #x = self.x[indx]
-        #y = self.y[indx]
-        self.ly.set_xdata(x) # disply vert line #<<<<<<
-        self.lx.set_ydata(y)  # disply horiz line
-        self.marker.set_data([x],[y]) #<<<<<<
-        self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y)) #<<<<<
-        #self.txt.set_text('y=%1.2f' % y)
-        self.txt.set_position((x-50,y)) #<<<<<<<
-        #self.txt.set_position((0,y)) # disply set_text wrt x,y coord.
-        self.ax.figure.canvas.draw_idle()
-
-def plot_chart_1x(x_lst,y_lst,title=None,xlab=None,ylab=None, rc='21'): 
-    r, c = int(rc[0]), int(rc[1])
-    for m in range(len(x_lst)):
-        loc = rc + str(m+1)
-        x, y = x_lst[m], y_lst[m]
-        fig, ax = plt.subplots(r,c, figsize=(9,5))
-        ax.scatter(x, y)
-        ax.set_title(title)
-        ax.set_xlabel(xlab)
-        ax.set_ylabel(ylab)
-        ax.set_xticks(x[::40])
-        ax.set_xticklabels(x[::40], rotation=30)
-
-        plt.show(block=True)
-
-def plot_chart_1(x_lst,y_lst,title=None,xlab=None,ylab=None, rc='11',ticks=5): 
-    r, c = int(rc[0]), int(rc[1])
-    for m in range(len(x_lst)):
-        loc = rc + str(m+1)
-        x, y = x_lst[m], y_lst[m]
-        fig, ax = plt.subplots(r,c, figsize=(10,6))
-        ax.scatter(x, y)
-        ax.set_title(title)
-        ax.set_xlabel(xlab)
-        ax.set_ylabel(ylab)
-        ax.set_xticks(x[::ticks]) #20]) # display selected x ticks
-        ax.set_xticklabels(x[::ticks], rotation=30)
-        
-        ## cursor setup
-        cursor = SnaptoCursor(ax, x, y)
-        cid =  plt.connect('motion_notify_event', cursor.mouse_move)
-
-        plt.grid()
-        plt.show(block=True)
 
 def plot_chart(x_lst, y_lst, country, y_label, ticks=None):
     fig, ax = plt.subplots()
@@ -86,6 +26,10 @@ def plot_chart(x_lst, y_lst, country, y_label, ticks=None):
 ######## download data from OWI web-site  ############
 ######################################################
 data_url = ('https://covid.ourworldindata.org/data/owid-covid-data.csv')
+
+## To get latest data from data_url
+r = requests.get(data_url)
+st.write('Last update:', r.headers['Date'])
 
 @st.cache
 def load_data(country='Malaysia'):
@@ -120,7 +64,7 @@ st.write('Selected country is:', country_name)
 data, country_list = load_data(country_name) #('China')
 
 if country_name not in country_list:
-    st.warning('Oops...! Country not entered or not valid, please re-enter!')
+    st.warning('Please enter country to continue...')
 
 # use a button to toggle country names
 #st.write(country_list)
