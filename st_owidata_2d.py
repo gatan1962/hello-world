@@ -145,3 +145,9 @@ try:
     
     fig.tight_layout()
     st.pyplot(fig)
+    
+except Exception as e:
+    st.warning('Oops...! Please check if country is entered correctly.')
+    
+
+
