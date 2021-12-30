@@ -5,6 +5,7 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import requests
 
 #ReaMe: To generate selected data to track,
 #       run this program. it will download source data from OWI site
@@ -14,6 +15,10 @@ import pandas as pd
 ######## download data from OWID web-site  ############
 ######################################################
 data_url = ('https://covid.ourworldindata.org/data/owid-covid-data.csv')
+
+## To get latest update from data_url
+r = requests.get(data_url)
+st.write('Last update:', r.headers['Date'])
 
 @st.cache
 def load_data(country='Malaysia'):
@@ -36,22 +41,22 @@ def check_raw_data(input_data, header):
     st.subheader(header)
     st.write(input_data)
 
-# program initialization
+## program initialization
 st.title('Covid-19 Trend Chart')
 st.text('Data source:- https://covid.ourworldindata.org/data/owid-covid-data.csv')
 
-# User input country name
+## User input country name
 country_name = st.text_input('Enter country:')
 country_name = " ".join(country_name.split()) # keep single space between components of name
-st.write('Selected country is:', country_name)
 
-# Download covid data from owid url
+## Download covid data from owid url
 data, country_list = load_data(country_name) 
 
 if country_name not in country_list:
-    st.warning('Oops...! Country not entered or not valid, please re-enter!')
+    st.warning('Please enter country to proceed...')
+    st.write('Selected country is:', country_name)
 
-# use a button to toggle country names
+## use a button to toggle country names
 if st.checkbox('Show all country names'):
     check_raw_data(country_list, 'List of sorted country names:')
     
@@ -83,21 +88,21 @@ try:
     x1 = x_lst[date_index:]
     y1 = y_nc[date_index:]
     y2 = y_nd[date_index:]
-    #y3 = y_wh[date_index:]
+    y3 = y_wh[date_index:]
     freq = int(len(x1)//30) + 1
     ticks, country = freq, country_name
 
     ## Plot charts:
-    fig, ax = plt.subplots(2, 1, figsize=(8,6)) # 2 charts align in column
+    fig, ax = plt.subplots(3, 1, figsize=(8,6)) # 2 charts align in column
     ax[0].scatter(x1, y1)
     ax[1].scatter(x1, y2)  
-    #ax[2].scatter(x1, y3, marker='.', color='g')
+    ax[2].scatter(x1, y3, marker='.', color='g')
     
     ## Standardized x-limit & x-ticks for all charts
     days = timedelta(int(0.03 * len(x1)) + 1) # off-set days
     ax[0].set_xlim(x1[0] - days, x1[-1] + days)
     ax[1].set_xlim(x1[0] - days, x1[-1] + days)
-    #ax[2].set_xlim(x1[0] - days, x1[-1] + days)
+    ax[2].set_xlim(x1[0] - days, x1[-1] + days)
 
     ## Plot 1st chart:
     ax[0].set_title(country)
@@ -113,8 +118,33 @@ try:
     ax[1].set_ylabel(y_label[1])
     ax[1].yaxis.set_label_coords(-0.1, 0.5)
     ax[1].set_xticks(x1[::ticks])
-    ax[1].set_xticklabels(x1[::ticks], rotation=90, fontsize=8)    
+    ax[1].set_xticklabels([])    
     ax[1].grid(linestyle='--')
+    
+    ## Plot 3rd chart:
+    if y_wh_data: # bool: if data available
+        
+        ax[2].set_xlabel('Date', fontsize=12)
+        ax[2].set_ylabel(y_label[2])
+        ax[2].yaxis.set_label_coords(-0.1, 0.5)
+        ax[2].set_xticks(x1[::ticks])
+        ax[2].set_xticklabels(x1[::ticks], rotation=90, fontsize=8)
+        ax[2].grid(linestyle='--')
+       
+    else:
+        y_dummy = [0 for k in y3] #generate dummy data. To avoid x-ticks squeeze
+        y3 = y_dummy
+        ax[2].scatter(x1, y3, marker='')
+        ax[2].annotate(text='>>> data not available <<<', xy = (0.3,0.6), \
+                       xycoords='axes fraction', fontsize=12)
+        ax[2].set_ylabel(y_label[2])
+        ax[2].yaxis.set_label_coords(-0.1, 0.5)
+        ax[2].set_xticks(x1[::ticks])
+        ax[2].set_xticklabels(x1[::ticks], rotation=90, fontsize=8)
+        ax[2].grid(linestyle='--')
+    
+    fig.tight_layout()
+    st.pyplot(fig)
     
     fig.tight_layout()
     st.pyplot(fig)
