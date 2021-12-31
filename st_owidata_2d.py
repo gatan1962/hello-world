@@ -57,6 +57,7 @@ st.text('Data source:- https://covid.ourworldindata.org/data/owid-covid-data.csv
 # user input country name
 #st.write('## Enter country:')
 country_name = st.text_input('Enter country:')
+country_name = " ".join(country_name.split()) # keep single space between components of name
 st.write('Selected country is:', country_name)
 
 # Download covid data from owid url
