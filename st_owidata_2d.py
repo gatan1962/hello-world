@@ -29,10 +29,11 @@ data_url = ('https://covid.ourworldindata.org/data/owid-covid-data.csv')
 
 ## To get latest data from data_url
 r = requests.get(data_url)
+last_update = r.headers['Date'][:17] # show date only
 st.write('Last update:', r.headers['Date'])
 
-#@st.cache
-def load_data(country='Malaysia'):
+@st.cache
+def load_data(country='Malaysia', date):
     data = pd.read_csv(data_url, nrows=None)
     
     # change all columns string to lowercase
@@ -62,7 +63,7 @@ st.write('Selected country is:', country_name)
 
 # Download covid data from owid url
 #data_load_status = st.write("Downloading covid data from owid in progress...")
-data, country_list = load_data(country_name) #('China')
+data, country_list = load_data(country_name, last_update)
 
 if country_name not in country_list:
     st.warning('Please enter country to continue...')
