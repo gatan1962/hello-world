@@ -31,7 +31,7 @@ data_url = ('https://covid.ourworldindata.org/data/owid-covid-data.csv')
 r = requests.get(data_url)
 st.write('Last update:', r.headers['Date'])
 
-@st.cache
+#@st.cache
 def load_data(country='Malaysia'):
     data = pd.read_csv(data_url, nrows=None)
     
