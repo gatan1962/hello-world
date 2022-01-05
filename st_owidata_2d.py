@@ -33,7 +33,7 @@ last_update = r.headers['Date'][:17] # show date only
 st.write('Last update:', r.headers['Date'])
 
 @st.cache
-def load_data(country='Malaysia', date):
+def load_data(country, date):
     data = pd.read_csv(data_url, nrows=None)
     
     # change all columns string to lowercase
