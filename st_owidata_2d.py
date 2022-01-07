@@ -32,7 +32,7 @@ r = requests.get(data_url)
 last_update = r.headers['Date'][:17] # show date only
 st.write('Last update:', r.headers['Date'])
 
-#@st.cache
+@st.cache
 def load_data(country, date):
     data = pd.read_csv(data_url, nrows=None)
     
