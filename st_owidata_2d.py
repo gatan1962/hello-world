@@ -29,7 +29,7 @@ data_url = ('https://covid.ourworldindata.org/data/owid-covid-data.csv')
 
 ## To get latest data from data_url
 r = requests.get(data_url)
-last_update = r.headers['Date'][:17] # show date only
+last_update = r.headers['Date'][:20] # show date & hour
 st.write('Last update:', r.headers['Date'])
 
 @st.cache
